@@ -19,6 +19,10 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Make Maven Wrapper Executable
+        working-directory: ./springboot/app
+        run: chmod +x ./mvnw
+
       - name: Build Spring Boot JAR
         working-directory: ./springboot/app
         run: ./mvnw clean package -DskipTests
