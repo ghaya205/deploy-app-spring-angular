@@ -1,0 +1,47 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Backend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest \
+          -f deploy-app-spring-angular/springboot/app/Dockerfile \
+          deploy-app-spring-angular/springboot/app
+
+      - name: Build Frontend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest \
+          -f deploy-app-spring-angular/angular-app/Dockerfile \
+          deploy-app-spring-angular/angular-app
+
+      - name: Push Images
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose -y
+
+      - name: Run docker-compose
+        run: |
+          docker-compose up -d
+          docker ps
