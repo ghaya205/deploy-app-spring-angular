@@ -13,6 +13,16 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v3
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Build Spring Boot JAR
+        working-directory: ./springboot/app
+        run: ./mvnw clean package -DskipTests
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -21,13 +31,11 @@ jobs:
 
       - name: Build Backend Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest \
-          ./springboot/app
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest ./springboot/app
 
       - name: Build Frontend Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest \
-          ./angular-app
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest ./angular-app
 
       - name: Push Images
         run: |
