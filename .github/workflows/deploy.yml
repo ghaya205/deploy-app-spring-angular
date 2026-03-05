@@ -51,8 +51,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install docker-compose -y
 
+      - name: Replace image names in docker-compose.yml
+        run: |
+          sed -i "s|image: angular-app|image: ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest|" docker-compose.yml
+          sed -i "s|image: spring-app|image: ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest|" docker-compose.yml
+
       - name: Run docker-compose
         run: |
           docker-compose up -d
           docker ps
-
